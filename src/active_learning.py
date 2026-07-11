@@ -1,5 +1,9 @@
 import pandas as pd, torch, copy
-
+from random import random
+import numpy as np
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
 def pick_batch_active(unrevealed_df, probs, k):
     tmp = unrevealed_df.copy()
     tmp["prob"] = probs
@@ -19,6 +23,7 @@ def run_loop(strategy, synthetic_df, pool_df, test_df, device, transform,
     history = []
 
     for round_i in range(n_rounds):
+        print(training_set.label.value_counts())
         model = train_model(training_set, device)
         metrics = report(model, test_df, device, transform)
         history.append({"round": round_i, "labels_used": len(training_set) - len(synthetic_df),

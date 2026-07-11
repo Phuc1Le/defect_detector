@@ -2,7 +2,11 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from torch.utils.data import DataLoader
-
+import random
+import numpy as np
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
 IMG_SIZE = 224
 TRANSFORM = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
