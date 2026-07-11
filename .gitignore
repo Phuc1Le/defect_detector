@@ -5,3 +5,4 @@ __pycache__/
 *.md
 *.zip
 .venv/
+models/
