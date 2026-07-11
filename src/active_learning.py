@@ -1,5 +1,5 @@
 import pandas as pd, torch, copy
-from random import random
+import random
 import numpy as np
 random.seed(42)
 np.random.seed(42)
