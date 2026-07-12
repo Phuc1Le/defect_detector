@@ -49,7 +49,23 @@ def train_model(train_df, device, epochs=8, lr=1e-4, batch_size=16):
 
     print("DataLoader sampled counts:", sampled_counts)
     model = build_model(device)
-    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    print("\nTrainable parameters:")
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            print(f"  ✓ {name}")
+        else:
+            print(f"  ✗ {name}")
+    total = sum(p.numel() for p in model.parameters())
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    print(f"Trainable parameters: {trainable:,}")
+    print(f"Frozen parameters:    {total - trainable:,}")
+    print(f"Total parameters:     {total:,}")
+    opt = torch.optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=lr
+    )
+    print(f"Optimizer parameter groups: {len(opt.param_groups[0]['params'])}")
     loss_fn = nn.CrossEntropyLoss()
 
     model.train()
