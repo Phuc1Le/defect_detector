@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 import random
 import numpy as np
 random.seed(42)
@@ -26,7 +26,21 @@ def build_model(device, freeze_backbone=True):
 def train_model(train_df, device, epochs=8, lr=1e-4, batch_size=16):
     from dataset import BottleDataset
     ds = BottleDataset(train_df, transform=TRANSFORM)
-    dl = DataLoader(ds, batch_size=batch_size, shuffle=True)
+    class_counts = train_df["label"].value_counts().sort_index()
+    print("Training label counts:")
+    print(class_counts)
+
+    class_weights = 1.0 / class_counts
+
+    # Weight for every sample
+    sample_weights = train_df["label"].map(class_weights).values
+
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(train_df),   # one epoch has same number of samples as dataset
+        replacement=True             # allows minority class to be repeated
+    )
+    dl = DataLoader(ds, batch_size=batch_size, sampler=sampler)
 
     model = build_model(device)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
