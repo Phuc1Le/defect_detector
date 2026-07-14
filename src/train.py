@@ -33,7 +33,7 @@ def build_model(device, freeze_backbone=True):
     model.fc = nn.Linear(model.fc.in_features, 2)  # ...then replace fc (new layer is trainable by default)
     return model.to(device)
 
-def train_model(model, train_df, device, epochs=8, lr=1e-4, batch_size=16):
+def train_model(model, train_df, device, epochs=4, lr=3e-4, batch_size=32):
     from dataset import BottleDataset
     ds = BottleDataset(train_df, transform=TRANSFORM)
     class_counts = train_df["label"].value_counts().sort_index()
