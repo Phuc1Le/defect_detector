@@ -1,20 +1,22 @@
-# Active Learning for Synthetic Bottle Defect Detection
+# Active Learning for Industrial Defect Detection
 
-A computer vision project that explores whether **active learning** can reduce manual labeling effort for industrial defect detection. Starting from a model trained only on **synthetically generated defects**, the system iteratively selects additional real images for labeling using either **uncertainty-based active learning** or **random sampling**, and compares their performance as more labeled data becomes available.
+> Reducing manual labeling costs by combining synthetic data generation with active learning.
 
-## Overview
+## Why
 
-Collecting labeled defect images is expensive because defects are relatively rare and require human inspection. This project investigates whether an active learning strategy can make better use of a limited labeling budget by prioritizing the most informative unlabeled images.
+High-quality labeled defect images are expensive because manufacturing defects are both rare and require expert inspection. Most machine learning models assume large labeled datasets, making them difficult to deploy in real production environments.
 
-The workflow consists of:
+This project explores whether combining synthetic defect generation with active learning can significantly reduce the amount of real labeled data required while maintaining competitive classification performance.
 
-1. Training an initial classifier using only synthetic defect images.
-2. Evaluating the bootstrap model on a held-out real test set.
-3. Iteratively revealing labels from an unlabeled pool.
-4. Comparing:
-   - **Active Learning** (uncertainty sampling)
-   - **Random Sampling**
-5. Measuring accuracy, precision, recall, and F1 score throughout the labeling process.
+## What I Built
+
+The system simulates a realistic industrial inspection workflow.
+
+- Generate synthetic bottle defects from clean images.
+- Train an initial defect classifier without any real defect labels.
+- Iteratively identify the most informative unlabeled images for annotation.
+- Compare **active learning** against **random sampling** under the same labeling budget.
+- Measure how quickly each strategy improves model performance.
 
 ---
 
@@ -61,50 +63,44 @@ More importantly, by combining active learning with synthetic defect generation,
 
 ---
 
+## Engineering Highlights
 
-## Source Files
+- Built procedural generators for scratches, cracks, scuffs, and blob defects.
+- Implemented uncertainty-based active learning for iterative sample selection.
+- Addressed severe class imbalance using weighted random sampling.
+- Benchmarked active learning against random sampling across multiple random seeds.
+- Automated experiment tracking and visualization.
 
-### `make_splits.py`
+## What I Learned
 
-Scans the dataset under `data/raw/<category>`, assigns binary labels (clean or defective), partitions the data into bootstrap, pool, and test sets, and generates `manifest.csv`.
+This project showed me that improving a machine learning system isn't just about choosing a better model. Benchmarking active learning against random sampling was essential to verify that the added complexity actually improved labeling efficiency, rather than simply assuming it would.
 
-### `synth_defects.py`
+I also found that the quality of synthetic data depends heavily on human design. I spent a significant amount of time refining scratch, crack, scuff, and blob generators to produce realistic defects, and learned that carefully engineered synthetic data often has a greater impact on downstream performance than changing the classifier itself.
 
-Generates synthetic defects from clean bottle images. Implemented defect generators include scratches, cracks, scuffs, blobs, and randomly combined defects to increase training diversity.
+## Architecture
 
-### `dataset.py`
-
-Defines the `BottleDataset` class responsible for loading images, applying preprocessing transforms, and supplying samples to PyTorch's `DataLoader`.
-
-### `train.py`
-
-Builds a pretrained ResNet-18 classifier and trains it using weighted random sampling to address class imbalance.
-
-### `evaluate.py`
-
-Evaluates the trained model by computing:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-
-It also returns prediction probabilities for active learning.
-
-### `active_learning.py`
-
-Implements the iterative labeling process.
-
-Two sampling strategies are supported:
-
-- **Active Learning:** selects images with prediction probabilities closest to 0.5 (highest uncertainty)
-- **Random Sampling:** selects images uniformly at random
-
-### `experiment.py`
-
-Runs the complete experiment across multiple random seeds, averages the results, exports evaluation metrics, and generates comparison plots.
-
----
+Clean Images
+      │
+      ▼
+Synthetic Defect Generator
+      │
+      ▼
+Bootstrap Training
+      │
+      ▼
+Unlabeled Real Pool
+      │
+      ▼
+Uncertainty Sampling
+      │
+      ▼
+Reveal True Labels
+      │
+      ▼
+Retraining
+      │
+      ▼
+Evaluation
 
 ## Methodology
 
